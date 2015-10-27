@@ -54,8 +54,15 @@ func (m *Merger) visit(root interface{}, p PostProcessor, node string, depth int
 
 			if action == "inject" {
 				if val != nil && reflect.TypeOf(val).Kind() == reflect.Map {
-					for k, v := range val.(map[interface{}]interface{}) {
-						root.(map[interface{}]interface{})[k] = v
+					for key, value := range val.(map[interface{}]interface{}) {
+						var injection interface{}
+						if value != nil && reflect.TypeOf(value).Kind() == reflect.Map {
+							injection = make(map[interface{}]interface{})
+							deepCopy(injection, value)
+						} else {
+							injection = value
+						}
+						root.(map[interface{}]interface{})[key] = injection
 					}
 				} else {
 					m.Errors.Push(fmt.Errorf("%s: tried to `%s`, but target node is a %s, not a map", node, v, reflect.TypeOf(val).String()))

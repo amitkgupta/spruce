@@ -19,6 +19,9 @@ func (p MockPostProcessor) PostProcess(i interface{}, node string) (interface{},
 		if p.action == "replace" {
 			return p.value, "replace", nil
 		}
+		if p.action == "inject" {
+			return p.value, "inject", nil
+		}
 	}
 	return nil, "ignore", nil
 }
@@ -77,6 +80,28 @@ func TestWalkTree(t *testing.T) {
 			delete(tree, "recurse")
 			So(err, ShouldNotBeNil)
 			So(err.Error(), ShouldContainSubstring, "hit max recursion depth. You seem to have a self-referencing dataset")
+		})
+		Convey("Injects values into maps if postprocessor told it to", func() {
+			tree["inject_here"] = "(( mock ))"
+			Convey("Appends an error if injecting a non-map into a map", func() {
+				m.Visit(tree, MockPostProcessor{action: "inject", value: "blue"})
+				err := m.Error()
+				So(err, ShouldNotBeNil)
+				So(err.Error(), ShouldContainSubstring, ": tried to `(( mock ))`, but target node is a string, not a map")
+			})
+			Convey("Injected maps are deep-copies", func() {
+				mockObj := map[interface{}]interface{}{
+					"subkey": map[interface{}]interface{}{
+						"deep-key": "was deep-copied",
+					},
+				}
+				m.Visit(tree, MockPostProcessor{action: "inject", value: mockObj})
+				err := m.Error()
+				So(err, ShouldBeNil)
+				So(tree["subkey"], ShouldResemble, mockObj["subkey"])
+				So(tree["subkey"], ShouldNotEqual, mockObj["subkey"])
+			})
+			delete(tree, "inject_here")
 		})
 		Convey("Replaces values in maps if postprocessor told it to", func() {
 			Convey("Regular values are just assigned", func() {
