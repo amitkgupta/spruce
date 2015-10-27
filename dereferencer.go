@@ -27,7 +27,7 @@ func parseGrabOp(o interface{}) (bool, string) {
 
 // resolve - resolves a set of tokens (literals or references), co-recursively with resolveKey()
 func (d DeReferencer) resolve(node string, args string) (interface{}, error) {
-	DEBUG("%s: resolving (( grab %s )))", node, args)
+	DEBUG("%s: resolving (( grab %s ))", node, args)
 	re := regexp.MustCompile(`\s+`)
 	targets := re.Split(strings.Trim(args, " \t\r\n"), -1)
 

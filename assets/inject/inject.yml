@@ -1,0 +1,8 @@
+---
+referenced-obj:
+  key: value
+
+
+hash:
+  .: (( inject referenced-obj ))
+  stuff: goes here

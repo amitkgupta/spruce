@@ -92,6 +92,7 @@ func main() {
 				}
 
 				m := &Merger{}
+				m.Visit(root, &Injector{root: root})
 				m.Visit(root, &StaticIPGenerator{root: root})
 				m.Visit(root, &DeReferencer{root: root})
 				m.Visit(root, &Concatenator{root: root})

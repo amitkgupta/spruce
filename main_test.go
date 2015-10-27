@@ -385,6 +385,20 @@ properties:
 
 `)
 		})
+		Convey("Inject grabs referenced data and in-lines it", func() {
+			os.Args = []string{"spruce", "merge", "assets/inject/inject.yml"}
+			stdout = ""
+			stderr = ""
+			main()
+			So(stdout, ShouldEqual, `hash:
+  key: value
+  stuff: goes here
+referenced-obj:
+  key: value
+
+`)
+			So(stderr, ShouldEqual, "")
+		})
 		Convey("Parameters override their requirement", func() {
 			os.Args = []string{"spruce", "merge", "assets/params/global.yml", "assets/params/good.yml"}
 			stdout = ""

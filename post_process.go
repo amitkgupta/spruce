@@ -52,6 +52,17 @@ func (m *Merger) visit(root interface{}, p PostProcessor, node string, depth int
 				root.(map[interface{}]interface{})[k] = replacement
 			}
 
+			if action == "inject" {
+				if val != nil && reflect.TypeOf(val).Kind() == reflect.Map {
+					for k, v := range val.(map[interface{}]interface{}) {
+						root.(map[interface{}]interface{})[k] = v
+					}
+				} else {
+					// FIXME: error?
+				}
+				delete(root.(map[interface{}]interface{}), k)
+			}
+
 			if ok := m.visit(root.(map[interface{}]interface{})[k], p, path, depth-1); !ok {
 				return false
 			}
@@ -81,6 +92,7 @@ func (m *Merger) visit(root interface{}, p PostProcessor, node string, depth int
 				}
 				root.([]interface{})[i] = replacement
 			}
+
 			if ok := m.visit(root.([]interface{})[i], p, path, depth-1); !ok {
 				return false
 			}
