@@ -1,6 +1,6 @@
 {
 	"ImportPath": "github.com/geofffranks/spruce",
-	"GoVersion": "go1.4",
+	"GoVersion": "go1.5.1",
 	"Deps": [
 		{
 			"ImportPath": "github.com/geofffranks/simpleyaml",
