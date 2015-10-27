@@ -58,7 +58,7 @@ func (m *Merger) visit(root interface{}, p PostProcessor, node string, depth int
 						root.(map[interface{}]interface{})[k] = v
 					}
 				} else {
-					// FIXME: error?
+					m.Errors.Push(fmt.Errorf("%s: tried to `%s`, but target node is a %s, not a map", node, v, reflect.TypeOf(val).String()))
 				}
 				delete(root.(map[interface{}]interface{}), k)
 			}
