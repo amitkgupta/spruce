@@ -23,7 +23,6 @@ func (m *Merger) Visit(root interface{}, p PostProcessor) {
 }
 
 func (m *Merger) visit(root interface{}, p PostProcessor, node string, depth int) bool {
-	DEBUG("visit(root, p, %q, %d)", node, depth)
 	if depth == 0 {
 		m.Errors.Push(fmt.Errorf("%s: hit max recursion depth. You seem to have a self-referencing dataset", node))
 		DEBUG("cycle detected!")
@@ -53,21 +52,11 @@ func (m *Merger) visit(root interface{}, p PostProcessor, node string, depth int
 			}
 
 			if action == "inject" {
-				if val != nil && reflect.TypeOf(val).Kind() == reflect.Map {
-					for key, value := range val.(map[interface{}]interface{}) {
-						var injection interface{}
-						if value != nil && reflect.TypeOf(value).Kind() == reflect.Map {
-							injection = make(map[interface{}]interface{})
-							deepCopy(injection, value)
-						} else {
-							injection = value
-						}
-						root.(map[interface{}]interface{})[key] = injection
-					}
-				} else {
-					m.Errors.Push(fmt.Errorf("%s: tried to `%s`, but target node is a %s, not a map", node, v, reflect.TypeOf(val).String()))
+				err := inject(root, val, k)
+				if err != nil {
+					m.Errors.Push(err)
+					continue
 				}
-				delete(root.(map[interface{}]interface{}), k)
 			}
 
 			if ok := m.visit(root.(map[interface{}]interface{})[k], p, path, depth-1); !ok {

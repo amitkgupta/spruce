@@ -2,7 +2,21 @@
 referenced-obj:
   key: value
 
+array:
+- node: mynode
+- node: secondnode
 
 hash:
+  # basic injection
   .: (( inject referenced-obj ))
   stuff: goes here
+  deeper_inject:
+    # both multi-inject and injecting from array elements
+    # also conflicting keys taking last-defined-precedence
+    .: (( inject array.[1] array.[0] ))
+    # Injecting a second time
+    more_injection: (( inject referenced-obj ))
+  parallel_inject:
+    #injecting something that injects
+    .: (( inject hash.deeper_inject ))
+

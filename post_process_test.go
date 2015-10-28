@@ -20,7 +20,7 @@ func (p MockPostProcessor) PostProcess(i interface{}, node string) (interface{},
 			return p.value, "replace", nil
 		}
 		if p.action == "inject" {
-			return p.value, "inject", nil
+			return []interface{}{p.value}, "inject", nil
 		}
 	}
 	return nil, "ignore", nil
@@ -83,23 +83,19 @@ func TestWalkTree(t *testing.T) {
 		})
 		Convey("Injects values into maps if postprocessor told it to", func() {
 			tree["inject_here"] = "(( mock ))"
-			Convey("Appends an error if injecting a non-map into a map", func() {
-				m.Visit(tree, MockPostProcessor{action: "inject", value: "blue"})
-				err := m.Error()
-				So(err, ShouldNotBeNil)
-				So(err.Error(), ShouldContainSubstring, ": tried to `(( mock ))`, but target node is a string, not a map")
-			})
-			Convey("Injected maps are deep-copies", func() {
+			Convey("Injected maps are deep-copies, regular values are just assigned", func() {
 				mockObj := map[interface{}]interface{}{
 					"subkey": map[interface{}]interface{}{
 						"deep-key": "was deep-copied",
 					},
+					"color": "superblue",
 				}
 				m.Visit(tree, MockPostProcessor{action: "inject", value: mockObj})
 				err := m.Error()
 				So(err, ShouldBeNil)
 				So(tree["subkey"], ShouldResemble, mockObj["subkey"])
 				So(tree["subkey"], ShouldNotEqual, mockObj["subkey"])
+				So(tree["color"], ShouldEqual, "superblue")
 			})
 			delete(tree, "inject_here")
 		})

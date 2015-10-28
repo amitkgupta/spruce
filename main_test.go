@@ -390,14 +390,39 @@ properties:
 			stdout = ""
 			stderr = ""
 			main()
-			So(stdout, ShouldEqual, `hash:
+			So(stdout, ShouldEqual, `array:
+- node: mynode
+- node: secondnode
+hash:
+  deeper_inject:
+    key: value
+    node: mynode
   key: value
+  parallel_inject:
+    key: value
+    node: mynode
   stuff: goes here
 referenced-obj:
   key: value
 
 `)
 			So(stderr, ShouldEqual, "")
+		})
+		Convey("Inject recursion using maps bails out appropriately", func() {
+			os.Args = []string{"spruce", "merge", "assets/inject/recursion.yml"}
+			stdout = ""
+			stderr = ""
+			main()
+			So(stdout, ShouldEqual, "")
+			So(stderr, ShouldContainSubstring, "possible recursion detected in call to (( inject ))")
+		})
+		Convey("Inject recursion using arrays bails out appropriately", func() {
+			os.Args = []string{"spruce", "merge", "assets/inject/recursion-array.yml"}
+			stdout = ""
+			stderr = ""
+			main()
+			So(stdout, ShouldEqual, "")
+			So(stderr, ShouldContainSubstring, "possible recursion detected in call to (( inject ))")
 		})
 		Convey("Parameters override their requirement", func() {
 			os.Args = []string{"spruce", "merge", "assets/params/global.yml", "assets/params/good.yml"}

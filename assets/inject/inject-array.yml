@@ -1,0 +1,10 @@
+---
+referenced-obj:
+- one point three
+- one point four
+- one point five
+
+array:
+- one
+- (( inject referenced-obj ))
+- two
